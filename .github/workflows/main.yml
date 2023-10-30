@@ -67,6 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         generator: ["Visual Studio 16 2019", Ninja]
+        build_type: ["Debug","Release","RelWithDebInfo","MinSizeRel"]
 
     steps:
       # Install latest CMake.
@@ -88,7 +89,7 @@ jobs:
 
           # run CMake (additional options like -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE are possible)
           # it is recommended to specify the compiler version used for the build
-          cmake -S . -B cbuild/ -DCRASHPAD_BUILD_EXAMPLES=TRUE -G "${{ matrix.generator }}" -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe
+          cmake -S . -B cbuild/ -DCRASHPAD_BUILD_EXAMPLES=TRUE -G -DCMAKE_BUILD_TYPE:STRING="${{ matrix.build_type }}" "${{ matrix.generator }}" -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe
           cmake --build cbuild/
 
       - uses: ruby/setup-ruby@v1
@@ -108,7 +109,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Crashpad_Windows_build_${{ github.sha }}
+          name: Crashpad_Windows_build_${{ matrix.generator }}_${{ matrix.build_type }}
           path: Crashpad_Windows_build.zip
 
   build-macos:
